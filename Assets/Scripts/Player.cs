@@ -14,11 +14,6 @@ public class Player : MonoBehaviour
     private float direction;
     private float countUp = 0;
 
-    void Start()
-    {
-        
-    }
-
 	private void Update()
 	{
         direction = Input.GetAxis("Horizontal");
@@ -60,7 +55,7 @@ public class Player : MonoBehaviour
             CreateBodyPart(transform.position, transform.rotation, transform);
         }
 
-        MarkerManager markerManager = snakeBody[snakeBody.Count - 1].GetComponent<MarkerManager>();
+        MarkerManager markerManager = snakeBody[0].GetComponent<MarkerManager>();
         if (countUp != 0)
 		{
             markerManager.ClearMarkerList();
@@ -89,7 +84,7 @@ public class Player : MonoBehaviour
         }
         temp.GetComponent<SpriteRenderer>().color = new Color(1f / Random.Range(0, 100), 1f / Random.Range(0, 100), 1f / Random.Range(0, 100));
         if (snakeBody.Count != 0)
-            temp.transform.localScale = snakeBody[snakeBody.Count - 1].transform.localScale - new Vector3(0.01f, 0.01f, 0);
+            temp.transform.localScale = snakeBody[snakeBody.Count - 1].transform.localScale - new Vector3(0.005f, 0.005f, 0);
         snakeBody.Add(temp);
         bodyParts.RemoveAt(0);
         return temp;

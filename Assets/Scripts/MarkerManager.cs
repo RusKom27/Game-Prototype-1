@@ -13,6 +13,7 @@ public class MarkerManager : MonoBehaviour
 		{
 			position = pos;
 			rotation = rot;
+			Debug.DrawLine(pos, pos + new Vector3(0.1f, 0.1f, 0.1f));
 		}
 	}
 
