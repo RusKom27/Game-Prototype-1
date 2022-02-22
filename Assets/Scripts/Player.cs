@@ -8,11 +8,13 @@ public class Player : MonoBehaviour
     [SerializeField] private float speed = 11;
     [SerializeField] private float turnSpeed = 180;
     [SerializeField] private float distanceBetween = 2f;
-    [SerializeField] private List<GameObject> bodyParts = new List<GameObject>();
+    [SerializeField] private int countOfCells;
+    [SerializeField] private GameObject cell;
 
     public List<GameObject> snakeBody;
     private float direction;
     private float countUp = 0;
+    private Vector3 lastScale = new Vector3(0.5f, 0.5f, 1);
 
 	private void Update()
 	{
@@ -21,16 +23,32 @@ public class Player : MonoBehaviour
 
 	private void FixedUpdate()
     {
-        if (bodyParts.Count > 0)
-		{
-            CreateBodyParts();
-		}
+        ManageSnakeBody();
         Movement(direction);
+    }
+
+    private void ManageSnakeBody()
+	{
+        if (countOfCells > 0)
+        {
+            CreateBodyParts();
+        }
+		for (int i = 0; i < snakeBody.Count; i++)
+		{
+            if (snakeBody[i] == null)
+			{
+                snakeBody.RemoveAt(i);
+                i = i - 1;
+			}
+		}
+        if (snakeBody.Count == 0)
+		{
+            Destroy(this);
+		}
     }
 
     private void Movement(float direction)
 	{
-        
         snakeBody[0].GetComponent<Rigidbody2D>().velocity = snakeBody[0].transform.right * speed * Time.fixedDeltaTime;
         if (direction != 0)
 		{
@@ -41,8 +59,8 @@ public class Player : MonoBehaviour
 			for (int i = 1; i < snakeBody.Count; i++)
 			{
                 MarkerManager markerManager = snakeBody[i - 1].GetComponent<MarkerManager>();
-                snakeBody[i].transform.position = markerManager.markerList[0].position;
-                snakeBody[i].transform.rotation = markerManager.markerList[0].rotation;
+                snakeBody[i].transform.position = markerManager.markerList[markerManager.markerList.Count - 1].position;
+                snakeBody[i].transform.rotation = markerManager.markerList[markerManager.markerList.Count - 1].rotation;
                 markerManager.markerList.RemoveAt(0);
             }
 		}
@@ -56,7 +74,7 @@ public class Player : MonoBehaviour
         }
 
         MarkerManager markerManager = snakeBody[0].GetComponent<MarkerManager>();
-        if (countUp != 0)
+        if (countUp > 4)
 		{
             markerManager.ClearMarkerList();
 		}
@@ -67,26 +85,24 @@ public class Player : MonoBehaviour
             temp.GetComponent<MarkerManager>().ClearMarkerList();
             countUp = 0;
 		}
-
 	}
 
     private GameObject CreateBodyPart(Vector3 position, Quaternion rotation, Transform transform)
 	{
-        GameObject temp = Instantiate(bodyParts[0], position, rotation, transform);
-        if (!temp.GetComponent<MarkerManager>())
+        GameObject temp = Instantiate(cell, position, rotation, transform);
+        if (countOfCells > 0)
         {
-            temp.AddComponent<MarkerManager>();
+            countOfCells--;
         }
-        if (!temp.GetComponent<Rigidbody2D>())
-        {
-            temp.AddComponent<Rigidbody2D>();
-            temp.GetComponent<Rigidbody2D>().gravityScale = 0;
-        }
-        temp.GetComponent<SpriteRenderer>().color = new Color(1f / Random.Range(0, 100), 1f / Random.Range(0, 100), 1f / Random.Range(0, 100));
-        if (snakeBody.Count != 0)
-            temp.transform.localScale = snakeBody[snakeBody.Count - 1].transform.localScale - new Vector3(0.005f, 0.005f, 0);
+        temp.transform.localScale = lastScale;
         snakeBody.Add(temp);
-        bodyParts.RemoveAt(0);
+        
         return temp;
+    }
+
+    public void AddBodyPart(Vector3 scale)
+	{
+        countOfCells++;
+        lastScale = scale;
     }
 }
