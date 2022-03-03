@@ -6,16 +6,20 @@ public class Food : MonoBehaviour
 {
     void Update()
     {
-        transform.localScale += new Vector3(0.0001f, 0.0001f, 0);
+        if (Time.timeScale > 0)
+		{
+            transform.localScale += transform.localScale / 100 * 0.1f;
+        }
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.transform.parent.tag == "Player")
 		{
-            collision.transform.parent.GetComponent<Player>().AddBodyPart(transform.localScale);
+            GameObject player = collision.transform.parent.gameObject;
+            player.GetComponent<Player>().AddBodyPart(transform.localScale);
+            player.GetComponent<Player>().IncreaseDifficulty();
             gameObject.transform.parent.GetComponent<Field>().UpdateFood();
-            Destroy(this.gameObject);
         }
     }
     

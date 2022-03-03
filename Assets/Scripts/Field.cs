@@ -9,7 +9,9 @@ public class Field : MonoBehaviour
     [SerializeField] private GameObject food;
     [SerializeField] private float distance;
     [SerializeField] private float foodSpawnPlaceOffset;
+
     private Vector3 leftTopPoint;
+    private GameObject actualFood;
 
     private void Start()
 	{
@@ -30,8 +32,10 @@ public class Field : MonoBehaviour
 
     public void UpdateFood()
 	{
-        float randomX = Random.Range(-leftTopPoint.x + foodSpawnPlaceOffset, leftTopPoint.x - foodSpawnPlaceOffset);
-        float randomY = Random.Range(-leftTopPoint.y + foodSpawnPlaceOffset, leftTopPoint.y - foodSpawnPlaceOffset);
-        Instantiate(food, new Vector3(randomX, randomY, 1), new Quaternion(0, 0, 0, 0), transform);
+        float randomX = Random.Range(leftTopPoint.x + foodSpawnPlaceOffset, -leftTopPoint.x - foodSpawnPlaceOffset);
+        float randomY = Random.Range(leftTopPoint.y - foodSpawnPlaceOffset, -leftTopPoint.y + foodSpawnPlaceOffset);
+        Destroy(actualFood);
+        actualFood = Instantiate(food, new Vector3(randomX, randomY, 1), new Quaternion(0, 0, 0, 0), transform);
     }
+
 }

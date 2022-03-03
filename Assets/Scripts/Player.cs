@@ -10,11 +10,12 @@ public class Player : MonoBehaviour
     [SerializeField] private float distanceBetween = 2f;
     [SerializeField] private int countOfCells;
     [SerializeField] private GameObject cell;
+    [SerializeField] private GameObject UIControl;
 
     public List<GameObject> snakeBody;
     private float direction;
     private float countUp = 0;
-    private Vector3 lastScale = new Vector3(0.5f, 0.5f, 1);
+    private Vector3 lastScale = new Vector3(0.2f, 0.2f, 1);
 
 	private void Update()
 	{
@@ -24,8 +25,29 @@ public class Player : MonoBehaviour
 	private void FixedUpdate()
     {
         ManageSnakeBody();
-        Movement(direction);
+        if (snakeBody.Count > 0)
+		{
+            Movement(direction);
+        }
     }
+
+    public void Respawn()
+	{
+        transform.position = new Vector3(0, 0, 0);
+        countOfCells = 2;
+        speed = 100;
+        foreach (GameObject cell in snakeBody)
+        {
+            if (snakeBody.Count > 2)
+			{
+                Destroy(cell.gameObject);
+            }
+			else
+			{
+                return;
+			}
+        }
+	}
 
     private void ManageSnakeBody()
 	{
@@ -38,12 +60,12 @@ public class Player : MonoBehaviour
             if (snakeBody[i] == null)
 			{
                 snakeBody.RemoveAt(i);
-                i = i - 1;
+                i--;
 			}
 		}
         if (snakeBody.Count == 0)
 		{
-            Destroy(this);
+            UIControl.GetComponent<UIControl>().GameOver();
 		}
     }
 
@@ -72,19 +94,22 @@ public class Player : MonoBehaviour
 		{
             CreateBodyPart(transform.position, transform.rotation, transform);
         }
+        if (snakeBody.Count > 0)
+        {
+            MarkerManager markerManager = snakeBody[0].GetComponent<MarkerManager>();
 
-        MarkerManager markerManager = snakeBody[0].GetComponent<MarkerManager>();
-        if (countUp > 4)
-		{
-            markerManager.ClearMarkerList();
-		}
-        countUp += Time.deltaTime;
-        if (countUp >= distanceBetween)
-		{
-            GameObject temp = CreateBodyPart(markerManager.markerList[0].position, markerManager.markerList[0].rotation, transform);
-            temp.GetComponent<MarkerManager>().ClearMarkerList();
-            countUp = 0;
-		}
+            if (countUp > 4)
+            {
+                markerManager.ClearMarkerList();
+            }
+            countUp += Time.deltaTime;
+            if (countUp >= distanceBetween)
+            {
+                GameObject temp = CreateBodyPart(markerManager.markerList[0].position, markerManager.markerList[0].rotation, transform);
+                temp.GetComponent<MarkerManager>().ClearMarkerList();
+                countUp = 0;
+            }
+        }
 	}
 
     private GameObject CreateBodyPart(Vector3 position, Quaternion rotation, Transform transform)
@@ -103,6 +128,12 @@ public class Player : MonoBehaviour
     public void AddBodyPart(Vector3 scale)
 	{
         countOfCells++;
+        UIControl.GetComponent<UIControl>().IncreaseScores();
         lastScale = scale;
     }
+
+    public void IncreaseDifficulty()
+	{
+        speed += speed / 100 * 0.5f;
+	}
 }
